@@ -50,6 +50,7 @@ public class PersonService {
     public Person updatePerson(String id, Person person) {
         int index = getIndexById(id);
         if (index != -1) {
+            person.setId(people.get(index).getId());
             people.set(index, person);
             return person;
         }
@@ -62,5 +63,4 @@ public class PersonService {
             people.remove(index);
         }
     }
-
 }

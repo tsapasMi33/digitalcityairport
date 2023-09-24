@@ -10,6 +10,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.web.JsonPath;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +67,7 @@ public class PersonController {
                 .body(personService.updatePerson(id, person));
     }
 
-    @PatchMapping(value = "/{id}/patch", consumes = "application/json-patch+json")
+    @PatchMapping(value = "/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Person> updateFidelity(@PathVariable String id, @RequestBody JsonPatch patch) {
         try {
             Person person = personService.getPerson(id);
