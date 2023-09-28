@@ -30,6 +30,15 @@ public class AirplaneType {
     @OneToMany(mappedBy = "type", cascade = CascadeType.ALL)
     private List<Airplane> airplanes;
 
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "pilot_licenses",
+            joinColumns = @JoinColumn(name = "airplane_type_id"),
+            inverseJoinColumns = @JoinColumn(name = "pilot_id")
+    )
+    private List<Pilot> licencedPilots;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
