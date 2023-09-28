@@ -1,28 +1,30 @@
 package be.tsapasmi33.digitalcityairport.models.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.UUID;
-@Data
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Person {
-    private String id;
-    @NonNull
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "person_id")
+    private Long id;
+
+    @Column(name = "person_firstname", nullable = false)
     private String firstname;
-    @NonNull
+
+    @Column(name = "person_lastname", nullable = false)
     private String lastname;
-    private FidelityStatus status;
 
-    public Person() {
-        this.id = UUID.randomUUID().toString();
-        this.status = FidelityStatus.NONE;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "person_fidelity", nullable = false)
+    private FidelityStatus fidelity;
 
-    enum FidelityStatus {
-        NONE,
-        BASIC,
-        PREMIUM,
-        GOLD
-    }
 }
