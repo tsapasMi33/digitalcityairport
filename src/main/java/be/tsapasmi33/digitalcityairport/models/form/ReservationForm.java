@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public class ReservationForm {
     private LocalDate reservationDate;
 
-    private Reservation toEntity() {
+    public Reservation toEntity() {
         Reservation reservation = new Reservation();
         reservation.setReservationDate(reservationDate);
         return reservation;

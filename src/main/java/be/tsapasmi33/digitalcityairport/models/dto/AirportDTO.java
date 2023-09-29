@@ -1,6 +1,5 @@
 package be.tsapasmi33.digitalcityairport.models.dto;
 
-import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
 import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +12,8 @@ public class AirportDTO {
 
     private Long id;
 
+    private String code;
+
     private String name;
 
     private String address;
@@ -24,6 +25,7 @@ public class AirportDTO {
 
         return AirportDTO.builder()
                 .id(airport.getId())
+                .code(airport.getCode())
                 .name(airport.getName())
                 .address(airport.getAddress())
                 .airplanesIn(airport.getAirplanesIn().stream()

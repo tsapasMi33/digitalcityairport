@@ -11,6 +11,7 @@ import java.util.Objects;
 @Setter
 @Builder
 public class AirplaneTypeDTO {
+    private Long id;
     private String make;
 
     private String model;
@@ -23,6 +24,7 @@ public class AirplaneTypeDTO {
         }
 
         return AirplaneTypeDTO.builder()
+                .id(airplaneType.getId())
                 .make(airplaneType.getMake())
                 .model(airplaneType.getModel())
                 .capacity(airplaneType.getCapacity())

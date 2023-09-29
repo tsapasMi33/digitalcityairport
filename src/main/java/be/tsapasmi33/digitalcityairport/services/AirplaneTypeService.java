@@ -1,5 +1,7 @@
 package be.tsapasmi33.digitalcityairport.services;
 
-public interface AirplaneTypeService extends CrudService<AirplaneTypeService, Long> {
+import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
+
+public interface AirplaneTypeService extends CrudService<AirplaneType, Long> {
 
 }

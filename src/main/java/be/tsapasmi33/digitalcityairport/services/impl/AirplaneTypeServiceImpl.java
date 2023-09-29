@@ -1,5 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
 import be.tsapasmi33.digitalcityairport.services.AirplaneTypeService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,17 +11,17 @@ import java.util.List;
 @Service
 public class AirplaneTypeServiceImpl implements AirplaneTypeService {
     @Override
-    public List<AirplaneTypeService> getAll() {
+    public List<AirplaneType> getAll() {
         return null;
     }
 
     @Override
-    public AirplaneTypeService getOne(Long id) {
+    public AirplaneType getOne(Long id) {
         return null;
     }
 
     @Override
-    public void insert(AirplaneTypeService entity) {
+    public void insert(AirplaneType entity) {
 
     }
 
@@ -30,7 +31,7 @@ public class AirplaneTypeServiceImpl implements AirplaneTypeService {
     }
 
     @Override
-    public AirplaneTypeService update(Long id, AirplaneTypeService entity) {
+    public AirplaneType update(Long id, AirplaneType entity) {
         return null;
     }
 }
