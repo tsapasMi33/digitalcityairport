@@ -12,6 +12,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+
+    @Query("""
+            SELECT r FROM Reservation r WHERE
+            (CAST(:reservationDate AS date) IS NULL OR r.reservationDate = CAST(:reservationDate AS date))
+            AND (:cancelled IS NULL OR r.cancelled = :cancelled)
+            AND (:flight IS NULL OR r.flight = :flight)
+            AND (:passenger IS NULL OR r.passenger = :passenger)
+            """)
     List<Reservation> findByReservationDateAndCancelledAndFlightAndPassenger(LocalDate reservationDate, Boolean cancelled, Flight flight, Passenger passenger);
 
     @Transactional

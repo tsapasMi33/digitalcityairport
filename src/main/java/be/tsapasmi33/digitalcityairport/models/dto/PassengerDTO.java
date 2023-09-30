@@ -5,8 +5,6 @@ import be.tsapasmi33.digitalcityairport.models.entities.enums.FidelityStatus;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
 public class PassengerDTO {
@@ -16,8 +14,6 @@ public class PassengerDTO {
 
     private FidelityStatus fidelity;
 
-    private List<ReservationDTO> reservations;
-
     public static PassengerDTO toDTO(Passenger passenger) {
         if (passenger == null) return null;
 
@@ -25,9 +21,6 @@ public class PassengerDTO {
                 .id(passenger.getId())
                 .fullName(passenger.getFirstname() + " " + passenger.getLastname())
                 .fidelity(passenger.getFidelity())
-                .reservations(passenger.getReservations().stream()
-                        .map(ReservationDTO::toDto)
-                        .toList())
                 .build();
     }
 }

@@ -23,7 +23,7 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             WHERE f.id = :id
             AND f.departure > :limitDate
             """)
-    boolean isDepartureAfterThreeDays(long id, LocalDateTime limitDate);
+    boolean isDepartureAfterXDays(long id, LocalDateTime limitDate);
 
     @Transactional
     @Modifying

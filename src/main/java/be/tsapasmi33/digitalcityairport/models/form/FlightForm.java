@@ -1,12 +1,11 @@
 package be.tsapasmi33.digitalcityairport.models.form;
 
-import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
-import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
-import be.tsapasmi33.digitalcityairport.models.entities.Pilot;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 public class FlightForm {
     private String code;
 

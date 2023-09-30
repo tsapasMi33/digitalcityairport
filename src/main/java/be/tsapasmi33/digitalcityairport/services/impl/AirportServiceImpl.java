@@ -1,5 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.exceptions.AirportNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.repositories.AirportRepository;
 import be.tsapasmi33.digitalcityairport.services.AirportService;
@@ -22,7 +23,7 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public Airport getOne(Long id) {
         return airportRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No airport with this id!"));
+                .orElseThrow(() -> new AirportNotFoundException(id));
     }
 
     @Override
@@ -32,21 +33,23 @@ public class AirportServiceImpl implements AirportService {
 
     @Override
     public void delete(Long id) {
+        if (!airportRepository.existsById(id)) {
+            throw new AirportNotFoundException(id);
+        }
         airportRepository.deleteById(id);
     }
 
     @Override
     public Airport update(Long id, Airport entity) {
-        if (!airportRepository.existsById(id)) {
-            throw new IllegalArgumentException("No airport with this id!");
-        }
-        entity.setId(id);
+        Airport old = getOne(id);
+        entity.setId(old.getId());
+        entity.setAirplanesIn(old.getAirplanesIn());
         return airportRepository.save(entity);
     }
 
     @Override
     public Airport findByCode(String code) {
         return airportRepository.findByCode(code)
-                .orElseThrow(() -> new IllegalArgumentException("No airport with this id!"));
+                .orElseThrow(() -> new AirportNotFoundException("Airport with code: " + code + " does not exist!"));
     }
 }

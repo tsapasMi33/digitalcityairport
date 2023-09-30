@@ -1,5 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.exceptions.FlightNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.repositories.FlightRepository;
 import be.tsapasmi33.digitalcityairport.services.FlightService;
@@ -23,7 +24,7 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public Flight getOne(Long id) {
         return flightRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No flight with this id"));
+                .orElseThrow(() -> new FlightNotFoundException(id));
     }
 
     @Override
@@ -44,14 +45,22 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Flight update(Long id, Flight entity) {
-        if (!flightRepository.existsById(id)) {
-            throw new IllegalArgumentException("No flight with this id");
-        }
         if (flightRepository.existsByIdAndCancelledIsTrue(id)) {
             throw new IllegalArgumentException("Flight is cancelled");
         }
-        entity.setId(id);
+
+        Flight old = getOne(id);
+
+        entity.setId(old.getId());
+        entity.setOrigin(old.getOrigin());
+        entity.setDestination(old.getDestination());
+
         return flightRepository.save(entity);
+    }
+
+    @Override
+    public boolean isDepartureAfterXDays(long flightId, LocalDateTime limitDate) {
+        return flightRepository.isDepartureAfterXDays(flightId, limitDate);
     }
 
     @Override
@@ -64,4 +73,6 @@ public class FlightServiceImpl implements FlightService {
         }
         flightRepository.cancelFlight(id);
     }
+
+
 }

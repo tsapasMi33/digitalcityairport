@@ -1,13 +1,9 @@
 package be.tsapasmi33.digitalcityairport.models.form;
 
 import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@Builder
+@Data
 public class AirplaneTypeForm {
     private String make;
 

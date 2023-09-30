@@ -1,10 +1,11 @@
 package be.tsapasmi33.digitalcityairport.models.form;
 
 import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
-import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
+import lombok.Data;
 
 import java.time.LocalDate;
 
+@Data
 public class AirplaneForm {
     private String serialNo;
     private LocalDate constructionDate;

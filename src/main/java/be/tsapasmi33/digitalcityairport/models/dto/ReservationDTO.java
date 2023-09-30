@@ -1,7 +1,5 @@
 package be.tsapasmi33.digitalcityairport.models.dto;
 
-import be.tsapasmi33.digitalcityairport.models.entities.Flight;
-import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
 import lombok.Builder;
 import lombok.Data;

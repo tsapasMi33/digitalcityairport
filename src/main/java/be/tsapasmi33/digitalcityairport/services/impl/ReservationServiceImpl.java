@@ -1,7 +1,9 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.exceptions.ReservationNotFoundException;
+import be.tsapasmi33.digitalcityairport.models.entities.Flight;
+import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
-import be.tsapasmi33.digitalcityairport.repositories.FlightRepository;
 import be.tsapasmi33.digitalcityairport.repositories.ReservationRepository;
 import be.tsapasmi33.digitalcityairport.services.FlightService;
 import be.tsapasmi33.digitalcityairport.services.PassengerService;
@@ -20,7 +22,6 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final PassengerService passengerService;
     private final FlightService flightService;
-    private final FlightRepository flightRepository;
 
     @Override
     public List<Reservation> getAll() {
@@ -30,7 +31,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation getOne(Long id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No reservation with this id"));
+                .orElseThrow(() -> new ReservationNotFoundException(id));
     }
 
     @Override
@@ -57,7 +58,17 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<Reservation> findAllByCriteria(LocalDate reservationDate, Boolean cancelled, Long flightId, Long passengerId) {
-        return reservationRepository.findByReservationDateAndCancelledAndFlightAndPassenger(reservationDate, cancelled, flightService.getOne(flightId), passengerService.getOne(passengerId));
+        Flight flight = null;
+        Passenger passenger = null;
+
+        if (flightId != null) {
+            flight = flightService.getOne(flightId);
+        }
+        if (passengerId != null) {
+            passenger = passengerService.getOne(passengerId);
+        }
+
+        return reservationRepository.findByReservationDateAndCancelledAndFlightAndPassenger(reservationDate, cancelled, flight, passenger);
     }
 
     @Override
@@ -66,7 +77,7 @@ public class ReservationServiceImpl implements ReservationService {
         if (reservation.isCancelled()) {
             throw new IllegalArgumentException("Reservation already cancelled!");
         }
-        if (!flightRepository.isDepartureAfterThreeDays(reservation.getFlight().getId(), LocalDateTime.now().plusDays(3))) {
+        if (!flightService.isDepartureAfterXDays(reservation.getFlight().getId(), LocalDateTime.now().plusDays(3))) {
             throw new IllegalArgumentException("Flight is less than three days ahead!");
         }
 

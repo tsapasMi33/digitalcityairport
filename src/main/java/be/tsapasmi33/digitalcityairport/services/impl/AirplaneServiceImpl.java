@@ -1,10 +1,11 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.exceptions.AirplaneNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
 import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.repositories.AirplaneRepository;
-import be.tsapasmi33.digitalcityairport.repositories.AirportRepository;
 import be.tsapasmi33.digitalcityairport.services.AirplaneService;
+import be.tsapasmi33.digitalcityairport.services.AirportService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Service
 public class AirplaneServiceImpl implements AirplaneService {
     AirplaneRepository airplaneRepository;
-    AirportRepository airportRepository;
+    AirportService airportService;
 
     @Override
     public List<Airplane> getAll() {
@@ -25,7 +26,7 @@ public class AirplaneServiceImpl implements AirplaneService {
     @Override
     public Airplane getOne(Long id) {
         return airplaneRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No airplane with id: " + id + " exists!"));
+                .orElseThrow(() -> new AirplaneNotFoundException(id));
     }
 
     @Override
@@ -46,12 +47,21 @@ public class AirplaneServiceImpl implements AirplaneService {
 
     @Override
     public void delete(Long id) {
+        if (!airplaneRepository.existsById(id)) {
+            throw new AirplaneNotFoundException(id);
+        }
         airplaneRepository.deleteById(id);
     }
 
     @Override
     public Airplane update(Long id, Airplane entity) {
-        return null;
+        Airplane old = getOne(id);
+        entity.setId(id);
+        entity.setType(old.getType());
+        entity.setFlights(old.getFlights());
+        entity.setCurrentAirport(old.getCurrentAirport());
+
+        return airplaneRepository.save(entity);
     }
 
     @Override
@@ -62,11 +72,10 @@ public class AirplaneServiceImpl implements AirplaneService {
     @Override
     public void setCurrentAirport(long id, long airportId) {
         if (!airplaneRepository.existsById(id)) {
-            throw new IllegalArgumentException("Airplane does not exist");
+            throw new AirplaneNotFoundException(id);
         }
-        if (!airportRepository.existsById(airportId)) {
-            throw new IllegalArgumentException("Airport does not exist");
-        }
-        airplaneRepository.setCurrentAirport(id, airportId);
+        Airport airport = airportService.getOne(airportId);
+
+        airplaneRepository.setCurrentAirport(id, airport);
     }
 }

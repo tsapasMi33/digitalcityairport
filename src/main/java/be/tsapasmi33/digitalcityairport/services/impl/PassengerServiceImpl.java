@@ -1,5 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.exceptions.PassengerNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.enums.FidelityStatus;
 import be.tsapasmi33.digitalcityairport.repositories.PassengerRepository;
@@ -23,7 +24,7 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     public Passenger getOne(Long id) {
         return passengerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No passenger with this id!"));
+                .orElseThrow(() -> new PassengerNotFoundException(id));
     }
 
     @Override
@@ -33,6 +34,9 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public void delete(Long id) {
+        if (!passengerRepository.existsById(id)) {
+            throw new PassengerNotFoundException(id);
+        }
         passengerRepository.deleteById(id);
     }
 

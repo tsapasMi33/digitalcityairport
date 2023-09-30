@@ -1,7 +1,9 @@
 package be.tsapasmi33.digitalcityairport.models.form;
 
 import be.tsapasmi33.digitalcityairport.models.entities.Pilot;
+import lombok.Data;
 
+@Data
 public class PilotForm {
     private String firstname;
     private String lastname;

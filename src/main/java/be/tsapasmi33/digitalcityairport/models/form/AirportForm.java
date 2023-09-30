@@ -1,7 +1,9 @@
 package be.tsapasmi33.digitalcityairport.models.form;
 
 import be.tsapasmi33.digitalcityairport.models.entities.Airport;
+import lombok.Data;
 
+@Data
 public class AirportForm {
     private String code;
     private String name;
