@@ -1,11 +1,11 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
 import be.tsapasmi33.digitalcityairport.exceptions.AirplaneNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotAvailableException;
 import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
 import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.repositories.AirplaneRepository;
 import be.tsapasmi33.digitalcityairport.services.AirplaneService;
-import be.tsapasmi33.digitalcityairport.services.AirportService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,6 @@ import java.util.List;
 @Service
 public class AirplaneServiceImpl implements AirplaneService {
     AirplaneRepository airplaneRepository;
-    AirportService airportService;
 
     @Override
     public List<Airplane> getAll() {
@@ -27,17 +26,6 @@ public class AirplaneServiceImpl implements AirplaneService {
     public Airplane getOne(Long id) {
         return airplaneRepository.findById(id)
                 .orElseThrow(() -> new AirplaneNotFoundException(id));
-    }
-
-    @Override
-    public boolean isAvailable(Airplane airplane, LocalDateTime departure, LocalDateTime arrival, Airport origin) {
-        long result = airplane.getFlights().stream()
-                .filter(flight -> !(departure.isAfter(flight.getDeparture()) && departure.isBefore(flight.getArrival()))) //filter out flights that fly the hours in question
-                .filter(flight -> !(arrival.isAfter(flight.getDeparture()) && arrival.isBefore(flight.getArrival())))     // same
-                .filter(flight -> flight.getDestination() != origin && flight.getArrival().isBefore(departure))          // filter out flights that do not land at the airport in question before the time of departure
-                .count();
-
-        return result == 0;
     }
 
     @Override
@@ -70,12 +58,27 @@ public class AirplaneServiceImpl implements AirplaneService {
     }
 
     @Override
-    public void setCurrentAirport(long id, long airportId) {
+    public void setCurrentAirport(long id, Airport airport) {
         if (!airplaneRepository.existsById(id)) {
             throw new AirplaneNotFoundException(id);
         }
-        Airport airport = airportService.getOne(airportId);
 
         airplaneRepository.setCurrentAirport(id, airport);
+    }
+
+    @Override
+    public Airplane getIfAvailable(long airplaneId, LocalDateTime departure, LocalDateTime arrival) {
+        Airplane airplane = getOne(airplaneId);
+
+        long overlapping = airplane.getFlights().stream()
+                .filter(flight -> departure.isBefore(flight.getArrival()) && arrival.isAfter(flight.getDeparture()))
+                .filter(flight -> !flight.isCancelled())
+                .count();
+
+        if (overlapping > 0) {
+            throw new ResourceNotAvailableException(Airplane.class, airplaneId, "on these dates");
+        }
+
+        return airplane;
     }
 }

@@ -2,7 +2,6 @@ package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
 import be.tsapasmi33.digitalcityairport.models.dto.FlightDTO;
-import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.form.FlightForm;
 import be.tsapasmi33.digitalcityairport.services.AirplaneService;
@@ -16,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,14 +65,16 @@ public class FlightController {
             @ApiResponse(responseCode = "201", description = "Successful creation of a flight", content = @Content)
     })
     @PostMapping("/add")
-    public ResponseEntity<HttpStatus> add(@RequestBody FlightForm form,
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody FlightForm form,
                                           @RequestParam long pilotId,
                                           @RequestParam long airplaneId,
                                           @RequestParam long originAirportId,
                                           @RequestParam long destinationAirportId) {
         Flight flight = form.toEntity();
-        flight.setPilot(pilotService.getOne(pilotId));
-        flight.setAirplane(airplaneService.getOne(airplaneId));
+        flight.setAirplane(airplaneService.getIfAvailable(airplaneId, form.getDeparture(), form.getArrival()));
+        if (pilotService.checkLicence(pilotId, flight.getAirplane().getType())) {
+            flight.setPilot(pilotService.getIfAvailable(pilotId, form.getDeparture(), form.getArrival()));
+        }
         flight.setOrigin(airportService.getOne(originAirportId));
         flight.setDestination(airportService.getOne(destinationAirportId));
 
@@ -89,18 +91,15 @@ public class FlightController {
     })
     @PutMapping(path = "/{id:^[0-9]+$}", params = {"pilotId", "airplaneId"})
     public ResponseEntity<FlightDTO> update(@PathVariable long id,
-                                            @RequestBody FlightForm form,
+                                            @Valid @RequestBody FlightForm form,
                                             @RequestParam(required = false) Long pilotId,
                                             @RequestParam(required = false) Long airplaneId) {
         Flight newFlight = form.toEntity();
         if (pilotId != null) {
-            newFlight.setPilot(pilotService.getOne(pilotId));
+            newFlight.setPilot(pilotService.getIfAvailable(pilotId, form.getDeparture(), form.getArrival()));
         }
         if (airplaneId != null) {
-            Airplane airplane = airplaneService.getOne(airplaneId);
-            if (airplaneService.isAvailable(airplane, newFlight.getDeparture(), newFlight.getArrival(), newFlight.getOrigin())) {
-                newFlight.setAirplane(airplane);
-            }
+            newFlight.setAirplane(airplaneService.getIfAvailable(id, form.getDeparture(), form.getArrival()));
         }
 
         Flight updated = flightService.update(id, newFlight);

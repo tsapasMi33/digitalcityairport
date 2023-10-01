@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +56,7 @@ public class AirportController {
             @ApiResponse(responseCode = "201", description = "Successful creation of an airport", content = @Content)
     })
     @PostMapping(path = "/add")
-    public ResponseEntity<HttpStatus> add(@RequestBody AirportForm form) {
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody AirportForm form) {
         airportService.insert(form.toEntity());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -68,7 +69,7 @@ public class AirportController {
             @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id:^[0-9]+$}")
-    public ResponseEntity<AirportDTO> update(@PathVariable long id, @RequestBody AirportForm form) {
+    public ResponseEntity<AirportDTO> update(@PathVariable long id, @Valid @RequestBody AirportForm form) {
         Airport updated = airportService.update(id, form.toEntity());
         return ResponseEntity.ok(AirportDTO.toDto(updated));
     }

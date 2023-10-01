@@ -2,8 +2,10 @@ package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
 import be.tsapasmi33.digitalcityairport.models.dto.PilotDTO;
+import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
 import be.tsapasmi33.digitalcityairport.models.entities.Pilot;
 import be.tsapasmi33.digitalcityairport.models.form.PilotForm;
+import be.tsapasmi33.digitalcityairport.services.AirplaneTypeService;
 import be.tsapasmi33.digitalcityairport.services.PilotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,7 @@ import java.util.List;
 public class PilotController {
 
     private final PilotService pilotService;
+    private final AirplaneTypeService airplaneTypeService;
 
     @Operation(summary = "Retrieves Pilots", description = "Provides a list of all pilots")
     @ApiResponse(responseCode = "200", description = "Successful retrieval of pilots",
@@ -57,7 +61,7 @@ public class PilotController {
             @ApiResponse(responseCode = "201", description = "Successful creation of a pilot", content = @Content)
     })
     @PostMapping("/add")
-    public ResponseEntity<HttpStatus> add(@RequestBody PilotForm form) {
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody PilotForm form) {
         pilotService.insert(form.toEntity());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -71,7 +75,7 @@ public class PilotController {
             @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id:^[0-9]+$}")
-    public ResponseEntity<PilotDTO> update(@PathVariable long id, @RequestBody PilotForm form) {
+    public ResponseEntity<PilotDTO> update(@PathVariable long id, @Valid @RequestBody PilotForm form) {
         Pilot updated = pilotService.update(id, form.toEntity());
 
         return ResponseEntity.ok(PilotDTO.toDto(updated));
@@ -84,7 +88,8 @@ public class PilotController {
     })
     @PatchMapping(path = "/{id:^[0-9]+$}", params = "airplaneTypeId")
     public ResponseEntity<HttpStatus> giveLicence(@PathVariable long id, @RequestParam long airplaneTypeId) {
-        pilotService.addLicence(id, airplaneTypeId);
+        AirplaneType airplaneType = airplaneTypeService.getOne(airplaneTypeId);
+        pilotService.addLicence(id, airplaneType);
 
         return ResponseEntity.noContent().build();
     }

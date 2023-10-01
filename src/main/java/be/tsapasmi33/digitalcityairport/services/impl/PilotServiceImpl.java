@@ -1,14 +1,15 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
 import be.tsapasmi33.digitalcityairport.exceptions.PilotNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotAvailableException;
 import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
 import be.tsapasmi33.digitalcityairport.models.entities.Pilot;
 import be.tsapasmi33.digitalcityairport.repositories.PilotRepository;
-import be.tsapasmi33.digitalcityairport.services.AirplaneTypeService;
 import be.tsapasmi33.digitalcityairport.services.PilotService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -16,7 +17,6 @@ import java.util.List;
 public class PilotServiceImpl implements PilotService {
 
     private final PilotRepository pilotRepository;
-    private final AirplaneTypeService airplaneTypeService;
 
     @Override
     public List<Pilot> getAll() {
@@ -51,13 +51,34 @@ public class PilotServiceImpl implements PilotService {
     }
 
     @Override
-    public void addLicence(long pilotId, long airplaneTypeId) {
-
-        AirplaneType airplaneType = airplaneTypeService.getOne(airplaneTypeId);
-
+    public void addLicence(long pilotId, AirplaneType airplaneType) {
         Pilot pilot = getOne(pilotId);
         pilot.getLicences().add(airplaneType);
 
         pilotRepository.save(pilot);
+    }
+
+    @Override
+    public Pilot getIfAvailable(long pilotId, LocalDateTime departure, LocalDateTime arrival) {
+        Pilot pilot = getOne(pilotId);
+
+        long overlapping = pilot.getFlights().stream()
+                .filter(flight -> departure.isBefore(flight.getArrival()) && arrival.isAfter(flight.getDeparture()))
+                .filter(flight -> !flight.isCancelled())
+                .count();
+
+        if (overlapping > 0) {
+            throw new ResourceNotAvailableException(Pilot.class, pilotId, "on these dates");
+        }
+
+        return pilot;
+    }
+
+    @Override
+    public boolean checkLicence(long pilotId, AirplaneType airplaneType) {
+        if (pilotRepository.existsByIdAndLicencesContains(pilotId, airplaneType)) {
+            return true;
+        }
+        throw new ResourceNotAvailableException(Pilot.class, pilotId, "because he has no licence for this airplane type");
     }
 }

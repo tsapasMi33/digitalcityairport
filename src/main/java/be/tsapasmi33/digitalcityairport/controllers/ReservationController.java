@@ -2,6 +2,8 @@ package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
 import be.tsapasmi33.digitalcityairport.models.dto.ReservationDTO;
+import be.tsapasmi33.digitalcityairport.models.entities.Flight;
+import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
 import be.tsapasmi33.digitalcityairport.models.form.ReservationForm;
 import be.tsapasmi33.digitalcityairport.services.FlightService;
@@ -14,12 +16,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Reservation Controller", description = "Manage reservations")
@@ -41,8 +45,10 @@ public class ReservationController {
                                                        @RequestParam(required = false) Long flightId,
                                                        @RequestParam(required = false) Long passengerId) {
 
+        Flight flight = flightService.getOne(flightId);
+        Passenger passenger = passengerService.getOne(passengerId);
         return ResponseEntity.ok(
-                reservationService.findAllByCriteria(reservationDate, cancelled, flightId, passengerId)
+                reservationService.findAllByCriteria(reservationDate, cancelled, flight, passenger)
                         .stream()
                         .map(ReservationDTO::toDto)
                         .toList()
@@ -66,7 +72,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "201", description = "Successful creation of a reservation", content = @Content)
     })
     @PostMapping(path = "/create", params = {"price", "flightId", "passengerId"})
-    public ResponseEntity<HttpStatus> create(@RequestBody ReservationForm form, @RequestParam double price, @RequestParam long flightId, @RequestParam long passengerId) {
+    public ResponseEntity<HttpStatus> create(@Valid @RequestBody ReservationForm form, @RequestParam double price, @RequestParam long flightId, @RequestParam long passengerId) {
         Reservation reservation = form.toEntity();
         reservation.setPrice(price);
         reservation.setFlight(flightService.getOne(flightId));
@@ -97,6 +103,9 @@ public class ReservationController {
     })
     @PatchMapping("/{id:^[0-9]+$}/cancel")
     public ResponseEntity<HttpStatus> cancel(@PathVariable long id) {
+        if (!flightService.isDepartureAfterXDays(reservationService.getOne(id).getFlight().getId(), LocalDateTime.now().plusDays(3))) {
+            throw new IllegalArgumentException("Flight is less than three days ahead!");
+        }
         reservationService.cancelReservation(id);
 
         return ResponseEntity.noContent().build();

@@ -10,7 +10,7 @@ public interface AirplaneService extends CrudService<Airplane, Long> {
 
     Airplane findBySerialNo(String serialNo);
 
-    void setCurrentAirport(long id, long airportId);
+    void setCurrentAirport(long id, Airport airport);
 
-    boolean isAvailable(Airplane airplane, LocalDateTime departure, LocalDateTime arrival, Airport origin);
+    Airplane getIfAvailable(long airplaneId, LocalDateTime departure, LocalDateTime arrival);
 }

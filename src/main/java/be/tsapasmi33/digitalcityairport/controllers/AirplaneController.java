@@ -3,6 +3,7 @@ package be.tsapasmi33.digitalcityairport.controllers;
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
 import be.tsapasmi33.digitalcityairport.models.dto.AirplaneDTO;
 import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
+import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.models.form.AirplaneForm;
 import be.tsapasmi33.digitalcityairport.services.AirplaneService;
 import be.tsapasmi33.digitalcityairport.services.AirplaneTypeService;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -65,7 +67,7 @@ public class AirplaneController {
             @ApiResponse(responseCode = "201", description = "Successful creation of an airplane", content = @Content)
     })
     @PostMapping(value = "/add", params = {"typeId", "airportId"})
-    public ResponseEntity<HttpStatus> add(@RequestBody AirplaneForm form, @RequestParam Long typeId, @RequestParam Long airportId) {
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody AirplaneForm form, @RequestParam Long typeId, @RequestParam Long airportId) {
         Airplane airplane = form.toEntity();
         airplane.setType(airplaneTypeService.getOne(typeId));
         airplane.setCurrentAirport(airportService.getOne(airportId));
@@ -82,7 +84,7 @@ public class AirplaneController {
             @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id:^[0-9]+$}")
-    public ResponseEntity<AirplaneDTO> update(@PathVariable long id, @RequestBody AirplaneForm form) {
+    public ResponseEntity<AirplaneDTO> update(@PathVariable long id, @Valid @RequestBody AirplaneForm form) {
         Airplane updated = airplaneService.update(id, form.toEntity());
         return ResponseEntity.ok(AirplaneDTO.toDto(updated));
     }
@@ -94,7 +96,8 @@ public class AirplaneController {
     })
     @PatchMapping(value = "/{id:^[0-9]+$}", params = "airportId")
     public ResponseEntity<HttpStatus> updateCurrentAirport(@PathVariable long id, @RequestParam long airportId) {
-        airplaneService.setCurrentAirport(id, airportId);
+        Airport airport = airportService.getOne(airportId);
+        airplaneService.setCurrentAirport(id, airport);
         return ResponseEntity.noContent()
                 .build();
     }

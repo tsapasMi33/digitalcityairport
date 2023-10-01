@@ -5,14 +5,11 @@ import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
 import be.tsapasmi33.digitalcityairport.repositories.ReservationRepository;
-import be.tsapasmi33.digitalcityairport.services.FlightService;
-import be.tsapasmi33.digitalcityairport.services.PassengerService;
 import be.tsapasmi33.digitalcityairport.services.ReservationService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -20,8 +17,6 @@ import java.util.List;
 public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
-    private final PassengerService passengerService;
-    private final FlightService flightService;
 
     @Override
     public List<Reservation> getAll() {
@@ -57,17 +52,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> findAllByCriteria(LocalDate reservationDate, Boolean cancelled, Long flightId, Long passengerId) {
-        Flight flight = null;
-        Passenger passenger = null;
-
-        if (flightId != null) {
-            flight = flightService.getOne(flightId);
-        }
-        if (passengerId != null) {
-            passenger = passengerService.getOne(passengerId);
-        }
-
+    public List<Reservation> findAllByCriteria(LocalDate reservationDate, Boolean cancelled, Flight flight, Passenger passenger) {
         return reservationRepository.findByReservationDateAndCancelledAndFlightAndPassenger(reservationDate, cancelled, flight, passenger);
     }
 
@@ -76,9 +61,6 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = getOne(id);
         if (reservation.isCancelled()) {
             throw new IllegalArgumentException("Reservation already cancelled!");
-        }
-        if (!flightService.isDepartureAfterXDays(reservation.getFlight().getId(), LocalDateTime.now().plusDays(3))) {
-            throw new IllegalArgumentException("Flight is less than three days ahead!");
         }
 
         reservationRepository.cancelReservation(id);

@@ -24,7 +24,7 @@ public class AirplaneType {
 
     private String model;
 
-    private String capacity;
+    private int capacity;
 
     @JsonIgnore
     @OneToMany(mappedBy = "type", cascade = CascadeType.ALL)
@@ -46,16 +46,16 @@ public class AirplaneType {
 
         AirplaneType that = (AirplaneType) o;
 
+        if (capacity != that.capacity) return false;
         if (!Objects.equals(make, that.make)) return false;
-        if (!Objects.equals(model, that.model)) return false;
-        return Objects.equals(capacity, that.capacity);
+        return Objects.equals(model, that.model);
     }
 
     @Override
     public int hashCode() {
         int result = make != null ? make.hashCode() : 0;
         result = 31 * result + (model != null ? model.hashCode() : 0);
-        result = 31 * result + (capacity != null ? capacity.hashCode() : 0);
+        result = 31 * result + capacity;
         return result;
     }
 }

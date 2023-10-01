@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,7 @@ public class PassengerController {
             @ApiResponse(responseCode = "201", description = "Successful creation of a passenger", content = @Content)
     })
     @PostMapping({"", "/add"})
-    public ResponseEntity<HttpStatus> add(@RequestBody PassengerForm form) {
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody PassengerForm form) {
         Passenger passenger = form.toEntity();
         passenger.setFidelity(FidelityStatus.NONE);
         passengerService.insert(passenger);
@@ -71,7 +72,7 @@ public class PassengerController {
             @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id:^[0-9]+$}")
-    public ResponseEntity<PassengerDTO> update(@PathVariable long id, @RequestBody PassengerForm form) {
+    public ResponseEntity<PassengerDTO> update(@PathVariable long id, @Valid @RequestBody PassengerForm form) {
         Passenger updated = passengerService.update(id, form.toEntity());
         return ResponseEntity.ok(PassengerDTO.toDTO(updated));
     }

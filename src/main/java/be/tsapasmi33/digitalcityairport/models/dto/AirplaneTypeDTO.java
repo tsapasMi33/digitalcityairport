@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Objects;
-
 @Getter
 @Setter
 @Builder
@@ -16,7 +14,7 @@ public class AirplaneTypeDTO {
 
     private String model;
 
-    private String capacity;
+    private int capacity;
 
     public static AirplaneTypeDTO toDto(AirplaneType airplaneType) {
         if (airplaneType == null) {
@@ -31,23 +29,4 @@ public class AirplaneTypeDTO {
                 .build();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        AirplaneTypeDTO that = (AirplaneTypeDTO) o;
-
-        if (!Objects.equals(make, that.make)) return false;
-        if (!Objects.equals(model, that.model)) return false;
-        return Objects.equals(capacity, that.capacity);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = make != null ? make.hashCode() : 0;
-        result = 31 * result + (model != null ? model.hashCode() : 0);
-        result = 31 * result + (capacity != null ? capacity.hashCode() : 0);
-        return result;
-    }
 }
