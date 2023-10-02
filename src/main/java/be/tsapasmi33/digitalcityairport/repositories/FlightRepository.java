@@ -13,11 +13,11 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     boolean existsByIdAndCancelledIsTrue(long id);
 
     @Query("""
-            SELECT 
-                CASE 
-                    WHEN COUNT(f) > 0 
-                    THEN true 
-                    ELSE false 
+            SELECT
+                CASE
+                    WHEN COUNT(f) > 0
+                    THEN true
+                    ELSE false
                 END
             FROM Flight f
             WHERE f.id = :id
@@ -32,4 +32,5 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             SET f.cancelled = true
             """)
     void cancelFlight(long id);
+
 }

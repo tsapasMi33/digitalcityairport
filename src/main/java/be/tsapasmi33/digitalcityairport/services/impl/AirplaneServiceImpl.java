@@ -72,6 +72,7 @@ public class AirplaneServiceImpl implements AirplaneService {
 
         long overlapping = airplane.getFlights().stream()
                 .filter(flight -> departure.isBefore(flight.getArrival()) && arrival.isAfter(flight.getDeparture()))
+                .filter(flight -> departure.isAfter(flight.getDeparture()) && arrival.isBefore(flight.getArrival()))
                 .filter(flight -> !flight.isCancelled())
                 .count();
 

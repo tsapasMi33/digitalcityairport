@@ -8,4 +8,6 @@ public interface FlightService extends CrudService<Flight, Long> {
     boolean isDepartureAfterXDays(long flightId, LocalDateTime limitDate);
 
     void cancelFlight(long id);
+
+    boolean areSeatsAvailable(Flight flight);
 }

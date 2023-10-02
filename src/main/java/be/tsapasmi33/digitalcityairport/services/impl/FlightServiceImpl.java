@@ -1,6 +1,8 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
 import be.tsapasmi33.digitalcityairport.exceptions.FlightNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotAvailableException;
+import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.repositories.FlightRepository;
 import be.tsapasmi33.digitalcityairport.services.FlightService;
@@ -72,6 +74,15 @@ public class FlightServiceImpl implements FlightService {
             throw new IllegalArgumentException("Flight is already cancelled");
         }
         flightRepository.cancelFlight(id);
+    }
+
+    @Override
+    public boolean areSeatsAvailable(Flight flight) {
+        AirplaneType airplaneType = flight.getAirplane().getType();
+        if (airplaneType.getCapacity() > flight.getReservations().size()) {
+            return true;
+        }
+        throw new ResourceNotAvailableException(Flight.class, flight.getId(), "because all seats are occupied");
     }
 
 

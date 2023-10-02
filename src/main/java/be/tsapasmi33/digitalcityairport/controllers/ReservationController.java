@@ -78,8 +78,9 @@ public class ReservationController {
         reservation.setFlight(flightService.getOne(flightId));
         reservation.setPassenger(passengerService.getOne(passengerId));
 
-        reservationService.insert(reservation);
-
+        if (flightService.areSeatsAvailable(reservation.getFlight())) {
+            reservationService.insert(reservation);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

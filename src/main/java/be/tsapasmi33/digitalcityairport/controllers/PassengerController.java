@@ -1,6 +1,7 @@
 package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
+import be.tsapasmi33.digitalcityairport.models.dto.FlightDTO;
 import be.tsapasmi33.digitalcityairport.models.dto.PassengerDTO;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.enums.FidelityStatus;
@@ -49,6 +50,22 @@ public class PassengerController {
     @GetMapping("/{id:^[0-9]+$}")
     public ResponseEntity<PassengerDTO> getOne(@PathVariable long id) {
         return ResponseEntity.ok(PassengerDTO.toDTO(passengerService.getOne(id)));
+    }
+
+    @Operation(summary = "Get Passenger's Flights", description = "Returns all flights from a passenger based on an ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "Passenger doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of passenger's flights", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PassengerDTO.class)))
+    })
+    @GetMapping("/{id:^[0-9]+$}/flights")
+    public ResponseEntity<List<FlightDTO>> getFlights(@PathVariable long id, @RequestParam(required = false) Boolean cancelled) {
+        if (cancelled == null) {
+            cancelled = false;
+        }
+        List<FlightDTO> flights = passengerService.getReservedFlights(id, cancelled).stream()
+                .map(FlightDTO::toDto)
+                .toList();
+        return ResponseEntity.ok(flights);
     }
 
     @Operation(summary = "Create a Passenger", description = "Creates a passenger from the provided payload")

@@ -64,6 +64,7 @@ public class PilotServiceImpl implements PilotService {
 
         long overlapping = pilot.getFlights().stream()
                 .filter(flight -> departure.isBefore(flight.getArrival()) && arrival.isAfter(flight.getDeparture()))
+                .filter(flight -> departure.isAfter(flight.getDeparture()) && arrival.isBefore(flight.getArrival()))
                 .filter(flight -> !flight.isCancelled())
                 .count();
 
