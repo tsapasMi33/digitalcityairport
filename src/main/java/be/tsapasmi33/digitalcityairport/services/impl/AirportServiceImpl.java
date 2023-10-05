@@ -1,6 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
-import be.tsapasmi33.digitalcityairport.exceptions.AirportNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.repositories.AirportRepository;
 import be.tsapasmi33.digitalcityairport.services.AirportService;
@@ -23,7 +23,7 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public Airport getOne(Long id) {
         return airportRepository.findById(id)
-                .orElseThrow(() -> new AirportNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(Airport.class, id));
     }
 
     @Override
@@ -34,7 +34,7 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public void delete(Long id) {
         if (!airportRepository.existsById(id)) {
-            throw new AirportNotFoundException(id);
+            throw new ResourceNotFoundException(Airport.class, id);
         }
         airportRepository.deleteById(id);
     }
@@ -50,6 +50,6 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public Airport findByCode(String code) {
         return airportRepository.findByCode(code)
-                .orElseThrow(() -> new AirportNotFoundException("Airport with code: " + code + " does not exist!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Airport with code: " + code + " does not exist!"));
     }
 }

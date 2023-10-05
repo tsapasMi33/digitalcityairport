@@ -1,7 +1,7 @@
 package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
-import be.tsapasmi33.digitalcityairport.models.dto.ReservationDTO;
+import be.tsapasmi33.digitalcityairport.models.dto.ReservationDTORich;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
@@ -38,19 +38,19 @@ public class ReservationController {
 
     @Operation(summary = "Retrieves Reservations", description = "Provides a list of all reservations. If parameters passed filters the list accordingly")
     @ApiResponse(responseCode = "200", description = "Successful retrieval of reservations",
-            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReservationDTO.class))))
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReservationDTORich.class))))
     @GetMapping(path = "/all")
-    public ResponseEntity<List<ReservationDTO>> getAll(@RequestParam(required = false) LocalDate reservationDate,
-                                                       @RequestParam(required = false) Boolean cancelled,
-                                                       @RequestParam(required = false) Long flightId,
-                                                       @RequestParam(required = false) Long passengerId) {
+    public ResponseEntity<List<ReservationDTORich>> getAll(@RequestParam(required = false) LocalDate reservationDate,
+                                                           @RequestParam(required = false) Boolean cancelled,
+                                                           @RequestParam(required = false) Long flightId,
+                                                           @RequestParam(required = false) Long passengerId) {
 
         Flight flight = flightService.getOne(flightId);
         Passenger passenger = passengerService.getOne(passengerId);
         return ResponseEntity.ok(
                 reservationService.findAllByCriteria(reservationDate, cancelled, flight, passenger)
                         .stream()
-                        .map(ReservationDTO::toDto)
+                        .map(ReservationDTORich::toDto)
                         .toList()
         );
     }
@@ -58,11 +58,11 @@ public class ReservationController {
     @Operation(summary = "Get Reservation by Id", description = "Returns a reservation based on an ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Reservation doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "200", description = "Successful retrieval of reservation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of reservation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationDTORich.class)))
     })
     @GetMapping("/{id:^[0-9]+$}")
-    public ResponseEntity<ReservationDTO> getOne(@PathVariable long id) {
-        return ResponseEntity.ok(ReservationDTO.toDto(reservationService.getOne(id)));
+    public ResponseEntity<ReservationDTORich> getOne(@PathVariable long id) {
+        return ResponseEntity.ok(ReservationDTORich.toDto(reservationService.getOne(id)));
     }
 
     @Operation(summary = "Create a Reservation", description = "Creates a reservation from the provided payload")
@@ -72,28 +72,15 @@ public class ReservationController {
             @ApiResponse(responseCode = "201", description = "Successful creation of a reservation", content = @Content)
     })
     @PostMapping(path = "/create", params = {"price", "flightId", "passengerId"})
-    public ResponseEntity<HttpStatus> create(@Valid @RequestBody ReservationForm form, @RequestParam double price, @RequestParam long flightId, @RequestParam long passengerId) {
+    public ResponseEntity<HttpStatus> create(@Valid @RequestBody ReservationForm form) {
         Reservation reservation = form.toEntity();
-        reservation.setPrice(price);
-        reservation.setFlight(flightService.getOne(flightId));
-        reservation.setPassenger(passengerService.getOne(passengerId));
-
+        reservation.setPrice(form.getPrice());
+        reservation.setPassenger(passengerService.getOne(form.getPassengerId()));
         if (flightService.areSeatsAvailable(reservation.getFlight())) {
-            reservationService.insert(reservation);
+            reservation.setFlight(flightService.getOne(form.getFlightId()));
         }
+        reservationService.insert(reservation);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @Operation(summary = "Update Reservation by Id", description = "Updates a reservation based on an ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "Reservation doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "200", description = "Successful update of reservation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PutMapping("/{id:^[0-9]+$}") //TODO Check if useful
-    public ResponseEntity<ReservationDTO> update(@PathVariable long id, @RequestBody ReservationForm form) {
-        Reservation updated = reservationService.update(id, form.toEntity());
-        return ResponseEntity.ok(ReservationDTO.toDto(updated));
     }
 
     @Operation(summary = "Cancel a Reservation", description = "Cancels a reservation based on an ID")

@@ -4,6 +4,7 @@ import be.tsapasmi33.digitalcityairport.models.entities.Airplane;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -17,6 +18,12 @@ public class AirplaneForm {
 
     @Past(message = "Construction date cannot be in the past")
     private LocalDate constructionDate;
+
+    @Positive(message = "Airplane Type id must be a positive")
+    private long typeId;
+
+    @Positive(message = "Airport id must be a positive")
+    private long airportId;
 
     public Airplane toEntity() {
         Airplane airplane = new Airplane();

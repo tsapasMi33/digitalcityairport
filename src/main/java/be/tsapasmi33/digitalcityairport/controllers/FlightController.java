@@ -65,41 +65,32 @@ public class FlightController {
             @ApiResponse(responseCode = "201", description = "Successful creation of a flight", content = @Content)
     })
     @PostMapping("/add")
-    public ResponseEntity<HttpStatus> add(@Valid @RequestBody FlightForm form,
-                                          @RequestParam long pilotId,
-                                          @RequestParam long airplaneId,
-                                          @RequestParam long originAirportId,
-                                          @RequestParam long destinationAirportId) {
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody FlightForm form) {
         Flight flight = form.toEntity();
-        flight.setAirplane(airplaneService.getIfAvailable(airplaneId, form.getDeparture(), form.getArrival()));
-        if (pilotService.checkLicence(pilotId, flight.getAirplane().getType())) {
-            flight.setPilot(pilotService.getIfAvailable(pilotId, form.getDeparture(), form.getArrival()));
-        }
-        flight.setOrigin(airportService.getOne(originAirportId));
-        flight.setDestination(airportService.getOne(destinationAirportId));
+        flight.setAirplane(airplaneService.getOne(form.getAirplaneId()));
+        flight.setPilot(pilotService.getOne(form.getPilotId()));
+        flight.setOrigin(airportService.getOne(form.getOriginAirportId()));
+        flight.setDestination(airportService.getOne(form.getDestinationAirportId()));
 
         flightService.insert(flight);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "Update Airplane by Id", description = "Updates an airplane based on an ID")
+    @Operation(summary = "Update Flight by Id", description = "Updates a flight based on an ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Pilot, airplane or airport doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "200", description = "Successful update of flight", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FlightDTO.class))),
             @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping(path = "/{id:^[0-9]+$}", params = {"pilotId", "airplaneId"})
-    public ResponseEntity<FlightDTO> update(@PathVariable long id,
-                                            @Valid @RequestBody FlightForm form,
-                                            @RequestParam(required = false) Long pilotId,
-                                            @RequestParam(required = false) Long airplaneId) {
+    public ResponseEntity<FlightDTO> update(@PathVariable long id, @Valid @RequestBody FlightForm form) {
         Flight newFlight = form.toEntity();
-        if (pilotId != null) {
-            newFlight.setPilot(pilotService.getIfAvailable(pilotId, form.getDeparture(), form.getArrival()));
+        if (form.getPilotId() != null) {
+            newFlight.setPilot(pilotService.getOne(form.getPilotId()));
         }
-        if (airplaneId != null) {
-            newFlight.setAirplane(airplaneService.getIfAvailable(id, form.getDeparture(), form.getArrival()));
+        if (form.getAirplaneId() != null) {
+            newFlight.setAirplane(airplaneService.getOne(form.getAirplaneId()));
         }
 
         Flight updated = flightService.update(id, newFlight);

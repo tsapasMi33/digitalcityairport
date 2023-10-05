@@ -1,4 +1,4 @@
-package be.tsapasmi33.digitalcityairport.models.entities.validation;
+package be.tsapasmi33.digitalcityairport.models.form.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

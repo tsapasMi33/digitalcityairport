@@ -1,6 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
-import be.tsapasmi33.digitalcityairport.exceptions.AirplaneTypeNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
 import be.tsapasmi33.digitalcityairport.repositories.AirplaneTypeRepository;
 import be.tsapasmi33.digitalcityairport.services.AirplaneTypeService;
@@ -23,7 +23,7 @@ public class AirplaneTypeServiceImpl implements AirplaneTypeService {
     @Override
     public AirplaneType getOne(Long id) {
         return airplaneTypeRepository.findById(id)
-                .orElseThrow(() -> new AirplaneTypeNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(AirplaneType.class, id));
     }
 
     @Override
@@ -34,7 +34,7 @@ public class AirplaneTypeServiceImpl implements AirplaneTypeService {
     @Override
     public void delete(Long id) {
         if (!airplaneTypeRepository.existsById(id)) {
-            throw new AirplaneTypeNotFoundException(id);
+            throw new ResourceNotFoundException(AirplaneType.class, id);
         }
         airplaneTypeRepository.deleteById(id);
     }
@@ -42,7 +42,7 @@ public class AirplaneTypeServiceImpl implements AirplaneTypeService {
     @Override
     public AirplaneType update(Long id, AirplaneType entity) {
         if (!airplaneTypeRepository.existsById(id)) {
-            throw new AirplaneTypeNotFoundException(id);
+            throw new ResourceNotFoundException(AirplaneType.class, id);
         }
         entity.setId(id);
         return airplaneTypeRepository.save(entity);

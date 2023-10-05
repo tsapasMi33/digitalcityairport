@@ -1,6 +1,8 @@
 package be.tsapasmi33.digitalcityairport;
 
-import be.tsapasmi33.digitalcityairport.exceptions.*;
+import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotAvailableException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -18,13 +20,7 @@ import java.util.List;
 public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({
-            AirplaneNotFoundException.class,
-            AirplaneTypeNotFoundException.class,
-            AirportNotFoundException.class,
-            FlightNotFoundException.class,
-            PassengerNotFoundException.class,
-            PilotNotFoundException.class,
-            ReservationNotFoundException.class
+            ResourceNotFoundException.class
     })
     public ResponseEntity<Object> handleResourceNotFoundException(RuntimeException ex) {
         ErrorResponse response = new ErrorResponse(List.of(ex.getMessage()));

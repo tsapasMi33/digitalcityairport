@@ -1,6 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
-import be.tsapasmi33.digitalcityairport.exceptions.ReservationNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
@@ -26,7 +26,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation getOne(Long id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new ReservationNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(Reservation.class, id));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservationRepository.deleteById(id);
     }
 
-    @Override //TODO check if useful
+    @Override
     public Reservation update(Long id, Reservation entity) {
         Reservation old = getOne(id);
 

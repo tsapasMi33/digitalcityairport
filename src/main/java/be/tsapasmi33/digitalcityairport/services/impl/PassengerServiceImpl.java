@@ -1,9 +1,8 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
-import be.tsapasmi33.digitalcityairport.exceptions.PassengerNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
-import be.tsapasmi33.digitalcityairport.models.entities.Reservation;
 import be.tsapasmi33.digitalcityairport.models.entities.enums.FidelityStatus;
 import be.tsapasmi33.digitalcityairport.repositories.PassengerRepository;
 import be.tsapasmi33.digitalcityairport.services.PassengerService;
@@ -11,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @AllArgsConstructor
 @Service
@@ -27,7 +25,7 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     public Passenger getOne(Long id) {
         return passengerRepository.findById(id)
-                .orElseThrow(() -> new PassengerNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException(Passenger.class, id));
     }
 
     @Override
@@ -38,7 +36,7 @@ public class PassengerServiceImpl implements PassengerService {
     @Override
     public void delete(Long id) {
         if (!passengerRepository.existsById(id)) {
-            throw new PassengerNotFoundException(id);
+            throw new ResourceNotFoundException(Passenger.class, id);
         }
         passengerRepository.deleteById(id);
     }
@@ -58,18 +56,12 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Override
-    public List<Flight> getReservedFlights(long passengerId, Boolean cancelled) {
-        Passenger passenger = getOne(passengerId);
-        Stream<Reservation> reservationStream = passenger.getReservations().stream();
-        if (!cancelled) {
-            reservationStream = reservationStream.filter(Reservation::isCancelled);
+    public List<Flight> getReservedFlights(long passengerId, Boolean includeCancelled) {
+        if (includeCancelled == null) {
+            includeCancelled = false;
+        } else if (includeCancelled) {
+            includeCancelled = null;
         }
-        Stream<Flight> flightStream = reservationStream
-                .map(Reservation::getFlight);
-        if (!cancelled) {
-            flightStream = flightStream.filter(Flight::isCancelled);
-        }
-
-        return flightStream.toList();
+        return passengerRepository.findFlightsByPassenger(passengerId, includeCancelled);
     }
 }

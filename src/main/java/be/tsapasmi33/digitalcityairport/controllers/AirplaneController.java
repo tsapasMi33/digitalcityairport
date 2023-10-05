@@ -67,26 +67,14 @@ public class AirplaneController {
             @ApiResponse(responseCode = "201", description = "Successful creation of an airplane", content = @Content)
     })
     @PostMapping(value = "/add", params = {"typeId", "airportId"})
-    public ResponseEntity<HttpStatus> add(@Valid @RequestBody AirplaneForm form, @RequestParam Long typeId, @RequestParam Long airportId) {
+    public ResponseEntity<HttpStatus> add(@Valid @RequestBody AirplaneForm form) {
         Airplane airplane = form.toEntity();
-        airplane.setType(airplaneTypeService.getOne(typeId));
-        airplane.setCurrentAirport(airportService.getOne(airportId));
+        airplane.setType(airplaneTypeService.getOne(form.getTypeId()));
+        airplane.setCurrentAirport(airportService.getOne(form.getAirportId()));
         airplaneService.insert(airplane);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
-    }
-
-    @Operation(summary = "Update Airplane by Id", description = "Updates an airplane based on an ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "Airplane, airplane type or airport doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "200", description = "Successful update of airplane", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AirplaneDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PutMapping("/{id:^[0-9]+$}")
-    public ResponseEntity<AirplaneDTO> update(@PathVariable long id, @Valid @RequestBody AirplaneForm form) {
-        Airplane updated = airplaneService.update(id, form.toEntity());
-        return ResponseEntity.ok(AirplaneDTO.toDto(updated));
     }
 
     @Operation(summary = "Set the current airport of the Airplane", description = "Sets the airport where the airplane is located based on an airport ID")

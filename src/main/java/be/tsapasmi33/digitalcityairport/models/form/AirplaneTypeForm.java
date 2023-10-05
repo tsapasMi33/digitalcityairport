@@ -1,8 +1,8 @@
 package be.tsapasmi33.digitalcityairport.models.form;
 
 import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
@@ -14,7 +14,7 @@ public class AirplaneTypeForm {
     @NotBlank(message = "Model cannot be blank")
     private String model;
 
-    @Min(value = 1)
+    @Positive
     private int capacity;
 
     public AirplaneType toEntity() {

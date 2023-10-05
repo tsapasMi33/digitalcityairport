@@ -9,5 +9,5 @@ import java.util.List;
 public interface PassengerService extends CrudService<Passenger, Long> {
     void updateFidelity(long id, FidelityStatus fidelity);
 
-    List<Flight> getReservedFlights(long passengerId, Boolean cancelled);
+    List<Flight> getReservedFlights(long passengerId, Boolean includeCancelled);
 }

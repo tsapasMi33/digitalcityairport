@@ -58,13 +58,11 @@ public class PassengerController {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of passenger's flights", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PassengerDTO.class)))
     })
     @GetMapping("/{id:^[0-9]+$}/flights")
-    public ResponseEntity<List<FlightDTO>> getFlights(@PathVariable long id, @RequestParam(required = false) Boolean cancelled) {
-        if (cancelled == null) {
-            cancelled = false;
-        }
-        List<FlightDTO> flights = passengerService.getReservedFlights(id, cancelled).stream()
+    public ResponseEntity<List<FlightDTO>> getFlights(@PathVariable long id, @RequestParam(required = false) Boolean includeCancelled) {
+        List<FlightDTO> flights = passengerService.getReservedFlights(id, includeCancelled).stream()
                 .map(FlightDTO::toDto)
                 .toList();
+
         return ResponseEntity.ok(flights);
     }
 
