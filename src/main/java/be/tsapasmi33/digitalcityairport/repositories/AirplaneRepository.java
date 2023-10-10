@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface AirplaneRepository extends JpaRepository<Airplane, Long> {
     @Transactional
     @Modifying
@@ -16,4 +18,5 @@ public interface AirplaneRepository extends JpaRepository<Airplane, Long> {
             WHERE a.id = :airplaneId
             """)
     void setCurrentAirport(Long airplaneId, Airport airport);
+
 }

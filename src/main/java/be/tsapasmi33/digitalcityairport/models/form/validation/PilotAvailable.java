@@ -8,11 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.FIELD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PresentValidator.class)
-public @interface Present {
-    String message() default "Date cannot be in the past or present";
+@Constraint(validatedBy = PilotAvailableValidator.class)
+public @interface PilotAvailable {
+    String message() default "Pilot is not available on these dates!";
 
     Class<?>[] groups() default {};
 

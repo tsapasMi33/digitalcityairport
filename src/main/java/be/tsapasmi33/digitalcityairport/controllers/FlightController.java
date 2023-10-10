@@ -2,6 +2,7 @@ package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
 import be.tsapasmi33.digitalcityairport.models.dto.FlightDTO;
+import be.tsapasmi33.digitalcityairport.models.entities.Airport;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.form.FlightForm;
 import be.tsapasmi33.digitalcityairport.services.AirplaneService;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "Flight Controller", description = "Manage flights")
@@ -34,13 +36,41 @@ public class FlightController {
     private final AirplaneService airplaneService;
     private final AirportService airportService;
 
-    @Operation(summary = "Retrieves Flights", description = "Provides a list of all flights")
+    @Operation(summary = "Retrieves Flights", description = "Provides a list of all flights. If parameters passed filters the list accordingly")
     @ApiResponse(responseCode = "200", description = "Successful retrieval of airplanes",
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FlightDTO.class))))
-    @GetMapping("/all") // TODO params: from, to, date [all optional]
+    @GetMapping("/all")
+    public ResponseEntity<List<FlightDTO>> getAll(@RequestParam(required = false) Long fromAirportId,
+                                                  @RequestParam(required = false) Long toAirportId,
+                                                  @RequestParam(required = false) LocalDate date,
+                                                  @RequestParam(required = false) Double min,
+                                                  @RequestParam(required = false) Double max
+                                                  ) {
+        Airport fromAirport = null;
+        Airport toAirport = null;
+        if (fromAirportId != null) {
+            fromAirport = airportService.getOne(fromAirportId);
+        }
+        if (toAirportId != null) {
+            toAirport = airportService.getOne(toAirportId);
+        }
+
+        return ResponseEntity.ok(
+                flightService.findAllByCriteria(fromAirport, toAirport, date, min, max)
+                        .stream()
+                        .map(FlightDTO::toDto)
+                        .toList()
+        );
+    }
+
+    @Operation(summary = "Retrieves Flights with new airplanes only", description = "Provides a list of all flights where airplanes is at maximum ten years old")
+    @ApiResponse(responseCode = "200", description = "Successful retrieval of airplanes",
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FlightDTO.class))))
+    @GetMapping("/new-airplanes-only")
     public ResponseEntity<List<FlightDTO>> getAll() {
         return ResponseEntity.ok(
-                flightService.getAll().stream()
+                flightService.findFlightsWithNewAirplanes()
+                        .stream()
                         .map(FlightDTO::toDto)
                         .toList()
         );

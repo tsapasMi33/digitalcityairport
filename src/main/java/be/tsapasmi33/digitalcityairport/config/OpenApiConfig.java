@@ -13,6 +13,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("DigitalCityAirport API")
                         .description("An API that manages flights and reservations")
-                        .version("v0.1"));
+                        .version("v0.5")
+                        .summary("This is an API made in DigitalCity in order to exercise with spring boot elements!"));
     }
 }

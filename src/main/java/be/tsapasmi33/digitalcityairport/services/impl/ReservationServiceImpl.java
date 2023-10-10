@@ -1,5 +1,6 @@
 package be.tsapasmi33.digitalcityairport.services.impl;
 
+import be.tsapasmi33.digitalcityairport.exceptions.CancelledEventModificationException;
 import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
@@ -60,7 +61,7 @@ public class ReservationServiceImpl implements ReservationService {
     public void cancelReservation(long id) {
         Reservation reservation = getOne(id);
         if (reservation.isCancelled()) {
-            throw new IllegalArgumentException("Reservation already cancelled!");
+            throw new CancelledEventModificationException(Reservation.class, id);
         }
 
         reservationRepository.cancelReservation(id);

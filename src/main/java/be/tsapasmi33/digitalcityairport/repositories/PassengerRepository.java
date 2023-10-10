@@ -4,10 +4,13 @@ import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
 import be.tsapasmi33.digitalcityairport.models.entities.enums.FidelityStatus;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 public interface PassengerRepository extends JpaRepository<Passenger, Long> {
@@ -29,4 +32,6 @@ public interface PassengerRepository extends JpaRepository<Passenger, Long> {
             AND (:includeCancelled IS NULL OR r.cancelled = :includeCancelled)
                 """)
     List<Flight> findFlightsByPassenger(Long PassengerId, Boolean includeCancelled);
+
+    Page<Passenger> findAllByFidelity(FidelityStatus fidelityStatus, PageRequest pageRequest);
 }

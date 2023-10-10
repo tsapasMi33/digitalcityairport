@@ -16,7 +16,7 @@ public class AirplaneForm {
     @NotNull
     private String serialNo;
 
-    @Past(message = "Construction date cannot be in the past")
+    @Past(message = "Construction date must be in the past")
     private LocalDate constructionDate;
 
     @Positive(message = "Airplane Type id must be a positive")

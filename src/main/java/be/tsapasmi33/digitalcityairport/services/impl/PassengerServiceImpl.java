@@ -7,6 +7,8 @@ import be.tsapasmi33.digitalcityairport.models.entities.enums.FidelityStatus;
 import be.tsapasmi33.digitalcityairport.repositories.PassengerRepository;
 import be.tsapasmi33.digitalcityairport.services.PassengerService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,5 +65,10 @@ public class PassengerServiceImpl implements PassengerService {
             includeCancelled = null;
         }
         return passengerRepository.findFlightsByPassenger(passengerId, includeCancelled);
+    }
+
+    @Override
+    public Page<Passenger> getByFidelity(FidelityStatus fidelityStatus, int pageNumber, int countByPage) {
+        return passengerRepository.findAllByFidelity(fidelityStatus, PageRequest.of(pageNumber,countByPage));
     }
 }

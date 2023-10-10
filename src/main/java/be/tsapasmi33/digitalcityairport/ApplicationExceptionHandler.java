@@ -1,8 +1,6 @@
 package be.tsapasmi33.digitalcityairport;
 
-import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
-import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotAvailableException;
-import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
+import be.tsapasmi33.digitalcityairport.exceptions.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -27,14 +25,10 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
-        ErrorResponse response = new ErrorResponse(List.of(ex.getMessage()));
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler({ResourceNotAvailableException.class})
-    public ResponseEntity<Object> handleResourceNotAvailableException(ResourceNotAvailableException ex) {
+    @ExceptionHandler({ConstraintNotRespectedException.class,
+                        ResourceNotAvailableException.class,
+                        CancelledEventModificationException.class})
+    public ResponseEntity<Object> handleIllegalArgumentException(RuntimeException ex) {
         ErrorResponse response = new ErrorResponse(List.of(ex.getMessage()));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

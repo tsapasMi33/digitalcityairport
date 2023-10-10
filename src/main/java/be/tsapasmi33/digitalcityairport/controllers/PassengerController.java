@@ -42,6 +42,17 @@ public class PassengerController {
         );
     }
 
+    @Operation(summary = "Retrieves Passengers based on their fidelity status", description = "Provides a list of all passengers with a certain fidelity status")
+    @ApiResponse(responseCode = "200", description = "Successful retrieval of passengers",
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PassengerDTO.class))))
+    @GetMapping("/fidelity")
+    public ResponseEntity<List<PassengerDTO>> getByFidelity(@RequestParam FidelityStatus fidelityStatus, @RequestParam int pageNumber) {
+        return ResponseEntity.ok(passengerService.getByFidelity(fidelityStatus, pageNumber + 1, 10)
+                .stream()
+                .map(PassengerDTO::toDTO)
+                .toList());
+    }
+
     @Operation(summary = "Get Passenger by Id", description = "Returns a passenger based on an ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Passenger doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
