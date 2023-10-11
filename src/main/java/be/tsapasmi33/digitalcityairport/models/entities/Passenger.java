@@ -18,7 +18,7 @@ import java.util.List;
 public class Passenger extends Person {
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private FidelityStatus fidelity;
 
     @JsonIgnore

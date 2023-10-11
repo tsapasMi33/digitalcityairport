@@ -65,4 +65,9 @@ public class AirplaneServiceImpl implements AirplaneService {
 
         airplaneRepository.setCurrentAirport(id, airport);
     }
+
+    @Override
+    public List<Airplane> findAllExperiencedAirplanes() {
+        return airplaneRepository.findAllExperiencedAirplanes();
+    }
 }

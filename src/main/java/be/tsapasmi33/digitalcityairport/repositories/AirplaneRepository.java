@@ -19,4 +19,18 @@ public interface AirplaneRepository extends JpaRepository<Airplane, Long> {
             """)
     void setCurrentAirport(Long airplaneId, Airport airport);
 
+    @Query(nativeQuery = true,
+            value = """
+                SELECT * FROM airplane a
+                WHERE a.id IN (
+                    SELECT airplane_id FROM
+                        (SELECT f.airplane_id, COUNT(f.id)
+                            FROM flight f
+                            WHERE CAST(f.departure AS DATE) <= now()
+                            GROUP BY f.airplane_id
+                        ) a
+                    WHERE a.count >= 10
+)
+                    """)
+    List<Airplane> findAllExperiencedAirplanes();
 }

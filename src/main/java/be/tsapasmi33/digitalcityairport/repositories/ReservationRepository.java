@@ -14,7 +14,7 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     @Query("""
-            SELECT r FROM Reservation r WHERE
+            SELECT r FROM Reservation r JOIN FETCH r.flight JOIN FETCH r.passenger WHERE
             (CAST(:reservationDate AS date) IS NULL OR r.reservationDate = CAST(:reservationDate AS date))
             AND (:cancelled IS NULL OR r.cancelled = :cancelled)
             AND (:flight IS NULL OR r.flight = :flight)

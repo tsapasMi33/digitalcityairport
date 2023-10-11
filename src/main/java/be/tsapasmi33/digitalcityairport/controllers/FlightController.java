@@ -67,7 +67,7 @@ public class FlightController {
     @ApiResponse(responseCode = "200", description = "Successful retrieval of airplanes",
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FlightDTO.class))))
     @GetMapping("/new-airplanes-only")
-    public ResponseEntity<List<FlightDTO>> getAll() {
+    public ResponseEntity<List<FlightDTO>> getFlightsWithNewAirplanes() {
         return ResponseEntity.ok(
                 flightService.findFlightsWithNewAirplanes()
                         .stream()

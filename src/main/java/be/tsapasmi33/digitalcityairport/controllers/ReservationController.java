@@ -1,6 +1,7 @@
 package be.tsapasmi33.digitalcityairport.controllers;
 
 import be.tsapasmi33.digitalcityairport.exceptions.ErrorResponse;
+import be.tsapasmi33.digitalcityairport.models.dto.ReservationDTO;
 import be.tsapasmi33.digitalcityairport.models.dto.ReservationDTORich;
 import be.tsapasmi33.digitalcityairport.models.entities.Flight;
 import be.tsapasmi33.digitalcityairport.models.entities.Passenger;
@@ -38,19 +39,25 @@ public class ReservationController {
 
     @Operation(summary = "Retrieves Reservations", description = "Provides a list of all reservations. If parameters passed filters the list accordingly")
     @ApiResponse(responseCode = "200", description = "Successful retrieval of reservations",
-            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReservationDTORich.class))))
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReservationDTO.class))))
     @GetMapping(path = "/all")
-    public ResponseEntity<List<ReservationDTORich>> getAll(@RequestParam(required = false) LocalDate reservationDate,
+    public ResponseEntity<List<ReservationDTO>> getAll(@RequestParam(required = false) LocalDate reservationDate,
                                                            @RequestParam(required = false) Boolean cancelled,
                                                            @RequestParam(required = false) Long flightId,
                                                            @RequestParam(required = false) Long passengerId) {
 
-        Flight flight = flightService.getOne(flightId);
-        Passenger passenger = passengerService.getOne(passengerId);
+        Flight flight = null;
+        if (flightId != null) {
+            flightService.getOne(flightId);
+        }
+        Passenger passenger = null;
+        if (passengerId != null) {
+            passengerService.getOne(passengerId);
+        }
         return ResponseEntity.ok(
                 reservationService.findAllByCriteria(reservationDate, cancelled, flight, passenger)
                         .stream()
-                        .map(ReservationDTORich::toDto)
+                        .map(ReservationDTO::toDto)
                         .toList()
         );
     }

@@ -48,6 +48,20 @@ public class AirplaneController {
         );
     }
 
+    @Operation(summary = "Retrieves experienced Airplanes", description = "Provides a list of all airplanes that have flown at least ten flights in their history")
+    @ApiResponse(responseCode = "200", description = "Successful retrieval of airplanes",
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AirplaneDTO.class))))
+    @GetMapping(path = "/all-experienced", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<AirplaneDTO>> getAllWithExperience() {
+        List<Airplane> airplanes = airplaneService.findAllExperiencedAirplanes();
+
+        return ResponseEntity.ok(
+                airplanes.stream()
+                        .map(AirplaneDTO::toDto)
+                        .toList()
+        );
+    }
+
     @Operation(summary = "Get Airplane by Id", description = "Returns an airplane based on an ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Airplane doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
