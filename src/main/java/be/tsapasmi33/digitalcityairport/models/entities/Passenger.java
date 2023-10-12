@@ -25,5 +25,4 @@ public class Passenger extends Person {
     @OneToMany(mappedBy = "passenger")
     private List<Reservation> reservations;
 
-
 }

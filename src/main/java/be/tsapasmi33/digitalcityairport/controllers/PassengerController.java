@@ -47,7 +47,7 @@ public class PassengerController {
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PassengerDTO.class))))
     @GetMapping("/fidelity")
     public ResponseEntity<List<PassengerDTO>> getByFidelity(@RequestParam FidelityStatus fidelityStatus, @RequestParam int pageNumber) {
-        return ResponseEntity.ok(passengerService.getByFidelity(fidelityStatus, pageNumber + 1, 10)
+        return ResponseEntity.ok(passengerService.getByFidelity(fidelityStatus, pageNumber, 10)
                 .stream()
                 .map(PassengerDTO::toDTO)
                 .toList());

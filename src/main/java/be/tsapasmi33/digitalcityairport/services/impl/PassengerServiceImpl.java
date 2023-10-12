@@ -69,6 +69,6 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public Page<Passenger> getByFidelity(FidelityStatus fidelityStatus, int pageNumber, int countByPage) {
-        return passengerRepository.findAllByFidelity(fidelityStatus, PageRequest.of(pageNumber,countByPage));
+        return passengerRepository.findAllByFidelity(fidelityStatus, PageRequest.of(pageNumber -1,countByPage));
     }
 }
