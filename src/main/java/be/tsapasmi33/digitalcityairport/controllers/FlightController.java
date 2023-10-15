@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -36,6 +37,7 @@ public class FlightController {
     private final AirplaneService airplaneService;
     private final AirportService airportService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','PASSENGER','PILOT')")
     @Operation(summary = "Retrieves Flights", description = "Provides a list of all flights. If parameters passed filters the list accordingly")
     @ApiResponse(responseCode = "200", description = "Successful retrieval of airplanes",
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FlightDTO.class))))
@@ -45,7 +47,7 @@ public class FlightController {
                                                   @RequestParam(required = false) LocalDate date,
                                                   @RequestParam(required = false) Double min,
                                                   @RequestParam(required = false) Double max
-                                                  ) {
+    ) {
         Airport fromAirport = null;
         Airport toAirport = null;
         if (fromAirportId != null) {
@@ -107,6 +109,7 @@ public class FlightController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('FLIGHT_MODIFIER')")
     @Operation(summary = "Update Flight by Id", description = "Updates a flight based on an ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Pilot, airplane or airport doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),

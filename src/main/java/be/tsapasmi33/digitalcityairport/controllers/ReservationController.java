@@ -21,6 +21,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -42,9 +43,9 @@ public class ReservationController {
             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReservationDTO.class))))
     @GetMapping(path = "/all")
     public ResponseEntity<List<ReservationDTO>> getAll(@RequestParam(required = false) LocalDate reservationDate,
-                                                           @RequestParam(required = false) Boolean cancelled,
-                                                           @RequestParam(required = false) Long flightId,
-                                                           @RequestParam(required = false) Long passengerId) {
+                                                       @RequestParam(required = false) Boolean cancelled,
+                                                       @RequestParam(required = false) Long flightId,
+                                                       @RequestParam(required = false) Long passengerId) {
 
         Flight flight = null;
         if (flightId != null) {
@@ -72,6 +73,7 @@ public class ReservationController {
         return ResponseEntity.ok(ReservationDTORich.toDto(reservationService.getOne(id)));
     }
 
+    @PreAuthorize("hasRole('PASSENGER')")
     @Operation(summary = "Create a Reservation", description = "Creates a reservation from the provided payload")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Bad request: unsuccessful submission", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),

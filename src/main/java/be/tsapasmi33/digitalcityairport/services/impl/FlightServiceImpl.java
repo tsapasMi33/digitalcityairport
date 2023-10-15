@@ -4,10 +4,19 @@ import be.tsapasmi33.digitalcityairport.exceptions.CancelledEventModificationExc
 import be.tsapasmi33.digitalcityairport.exceptions.ConstraintNotRespectedException;
 import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotAvailableException;
 import be.tsapasmi33.digitalcityairport.exceptions.ResourceNotFoundException;
-import be.tsapasmi33.digitalcityairport.models.entities.*;
+import be.tsapasmi33.digitalcityairport.models.entities.AirplaneType;
+import be.tsapasmi33.digitalcityairport.models.entities.Airport;
+import be.tsapasmi33.digitalcityairport.models.entities.Flight;
+import be.tsapasmi33.digitalcityairport.models.entities.Pilot;
 import be.tsapasmi33.digitalcityairport.repositories.FlightRepository;
 import be.tsapasmi33.digitalcityairport.services.FlightService;
 import be.tsapasmi33.digitalcityairport.services.PilotService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +31,7 @@ public class FlightServiceImpl implements FlightService {
 
     private final FlightRepository flightRepository;
     private final PilotService pilotService;
+    private final EntityManager entityManager;
 
     @Override
     public List<Flight> getAll() {
@@ -99,7 +109,35 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public List<Flight> findAllByCriteria(Airport fromAirport, Airport toAirport, LocalDate date, Double min, Double max) {
-        return flightRepository.findAllByCriteria(fromAirport,toAirport,date,min,max);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Flight> query = criteriaBuilder.createQuery(Flight.class);
+        Root<Flight> root = query.from(Flight.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (fromAirport != null) {
+            predicates.add(criteriaBuilder.equal(root.get("origin"), fromAirport));
+        }
+        if (toAirport != null) {
+            predicates.add(criteriaBuilder.equal(root.get("destination"), toAirport));
+        }
+        if (toAirport != null) {
+            predicates.add(criteriaBuilder.equal(root.get("departure"), date));
+        }
+        if (toAirport != null) {
+            predicates.add(criteriaBuilder.equal(root.get("destination"), toAirport));
+        }
+        if (min != null) {
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), min));
+        }
+        if (max != null) {
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), max));
+        }
+
+        query.where(predicates.toArray(new Predicate[0]));
+
+        TypedQuery<Flight> typedQuery = entityManager.createQuery(query);
+
+        return typedQuery.getResultList();
     }
 
     @Override

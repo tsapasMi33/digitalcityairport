@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +64,7 @@ public class PassengerController {
         return ResponseEntity.ok(PassengerDTO.toDTO(passengerService.getOne(id)));
     }
 
+    @PreAuthorize("hasAnyRole('PASSENGER','ADMIN')")
     @Operation(summary = "Get Passenger's Flights", description = "Returns all flights from a passenger based on an ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "Passenger doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
